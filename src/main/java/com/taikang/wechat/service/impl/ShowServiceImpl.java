@@ -6,6 +6,7 @@ import com.taikang.wechat.dao.ShowDao;
 import com.taikang.wechat.model.UserInfo;
 import com.taikang.wechat.model.utils.PageBean;
 import com.taikang.wechat.service.ShowService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ import java.util.List;
  * DATE Created in  2018/7/5
  */
 @Service
+@Slf4j
 public class ShowServiceImpl implements ShowService {
     private final ShowDao showDao;
     @Autowired
@@ -42,6 +44,7 @@ public class ShowServiceImpl implements ShowService {
     public PageInfo<UserInfo> select() {
         PageHelper.startPage(0,5);
         List<UserInfo> select = showDao.select();
+        log.info("hello");
         return new PageInfo<>(select);
     }
 }

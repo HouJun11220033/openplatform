@@ -1,4 +1,8 @@
 package com.taikang.wechat.service;
+
+import com.github.pagehelper.PageInfo;
+import com.taikang.wechat.model.UserInfo;
+
 /**
  * AUTHOR nicai
  * 方法说明：代码展示业务层接口
@@ -13,4 +17,6 @@ public interface ShowService {
  * @author 张清森
  */
     String selectByIdService(Integer id);
+
+    PageInfo<UserInfo> select();
 }

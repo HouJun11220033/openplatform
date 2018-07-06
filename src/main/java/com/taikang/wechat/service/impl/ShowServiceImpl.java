@@ -1,8 +1,15 @@
 package com.taikang.wechat.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.taikang.wechat.dao.ShowDao;
+import com.taikang.wechat.model.UserInfo;
+import com.taikang.wechat.model.utils.PageBean;
 import com.taikang.wechat.service.ShowService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * AUTHOR nicai
@@ -12,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ShowServiceImpl implements ShowService {
     private final ShowDao showDao;
-
+    @Autowired
     public ShowServiceImpl(ShowDao showDao) {
         this.showDao = showDao;
     }
@@ -27,7 +34,14 @@ public class ShowServiceImpl implements ShowService {
     @Override
     public String selectByIdService(Integer id) {
 //        Page<Object> objects = PageHelper.startPage(0, 10)
-        if (id==null) return null;;
+        if (id==null) return null;
         return showDao.selectNameById(id);
+    }
+
+    @Override
+    public PageInfo<UserInfo> select() {
+        PageHelper.startPage(0,5);
+        List<UserInfo> select = showDao.select();
+        return new PageInfo<>(select);
     }
 }

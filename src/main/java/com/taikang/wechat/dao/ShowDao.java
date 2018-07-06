@@ -1,6 +1,9 @@
 package com.taikang.wechat.dao;
 
+import com.taikang.wechat.model.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * @author: zqs
@@ -15,4 +18,6 @@ public interface ShowDao {
      * @date： 2018/7/5
      */
     String selectNameById(int id);
+
+    List<UserInfo> select();
 }

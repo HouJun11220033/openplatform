@@ -1,9 +1,11 @@
 package com.taikang.wechat.controller;
 
+import com.github.pagehelper.PageInfo;
 import com.taikang.wechat.controller.DTO.UserInfoDTO;
 import com.taikang.wechat.model.UserInfo;
 import com.taikang.wechat.service.ShowService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,10 +17,12 @@ public class ShowController {
 
     //根据ID查询姓名
     private static final String SELECT_BY_ID = "selectById";
-
+    //分页查询
+    private static final String SELECT = "select";
     //=========================================
-    private final ShowService showService;
 
+    private final ShowService showService;
+    @Autowired
     public ShowController(ShowService showService) {
         this.showService = showService;
     }
@@ -39,4 +43,9 @@ public class ShowController {
         if (id ==null) return "error";
         return showService.selectByIdService(id);
     }
+    @PostMapping(SELECT)
+    public PageInfo<UserInfo> selectAction(){
+        return showService.select();
+    }
+
 }

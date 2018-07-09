@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taikang.wechat.dao.CityDao">
+    <select id="selectCityById" resultType="com.taikang.wechat.model.CityModel">
+      select * from city where id = #{id}
+    </select>
+
+    <insert id="insertCity" parameterType="com.taikang.wechat.model.CityModel">
+        insert into city(id,name,state,country) values (#{id},#{name},#{state},#{country})
+    </insert>
+
+    <select id="selectAll" resultType="com.taikang.wechat.model.CityModel">
+        select * from city
+    </select>
+</mapper>

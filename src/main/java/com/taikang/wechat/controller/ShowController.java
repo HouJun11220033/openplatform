@@ -20,7 +20,8 @@ public class ShowController {
     //分页查询
     private static final String SELECT = "select";
     //=========================================
-
+    //测试
+    private static final String Find = "find";
     private final ShowService showService;
     @Autowired
     public ShowController(ShowService showService) {
@@ -48,4 +49,9 @@ public class ShowController {
         return showService.select();
     }
 
+    //自测
+    @PostMapping(Find)
+    public String getFind(){
+        return "find";
+    }
 }

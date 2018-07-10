@@ -1,9 +1,12 @@
 package com.taikang.wechat.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.taikang.wechat.constant.ExceptionEnum;
 import com.taikang.wechat.controller.DTO.UserInfoDTO;
 import com.taikang.wechat.model.UserInfo;
 import com.taikang.wechat.service.ShowService;
+import com.taikang.wechat.utils.voutils.ResponseResult;
+import com.taikang.wechat.utils.voutils.ResultResponseUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,14 +38,18 @@ public class ShowController {
      * @author 张清森
      */
     @PostMapping(SELECT_BY_ID)
-    public String selectByIdAction(@RequestBody UserInfoDTO userInfoDTO){
+    public ResponseResult<Object> selectByIdAction(@RequestBody UserInfoDTO userInfoDTO){
 //        如果有必要切换域
 //        UserInfo userInfo = new UserInfo();
 //        BeanUtils.copyProperties(userInfoDTO,userInfo);
 //        Integer id = userInfo.getId();
         Integer id = userInfoDTO.getId();
-        if (id ==null) return "error";
-        return showService.selectByIdService(id);
+        if (id ==null) {
+            return ResultResponseUtils.error(ExceptionEnum.INVOKING_ERROR);
+        }
+        //适用于无返回值
+//        return ResultResponseUtils.success();
+        return ResultResponseUtils.success(id);
     }
     @PostMapping(SELECT)
     public PageInfo<UserInfo> selectAction(){

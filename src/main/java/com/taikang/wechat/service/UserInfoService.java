@@ -8,7 +8,7 @@ import com.taikang.wechat.model.UserInfo;
  * 方法说明：代码展示业务层接口
  * DATE Created in  2018/7/5
  */
-public interface ShowService {
+public interface UserInfoService {
 /**
  * @return  姓名
  * @param  id 主键id

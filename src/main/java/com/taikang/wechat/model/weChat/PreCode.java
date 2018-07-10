@@ -19,6 +19,10 @@ public class PreCode {
      */
     private String preCodeId;
     /**
+     * 预授权码
+     */
+    private String preCode;
+    /**
      * 有效时间
      */
    private Long expiresIn;

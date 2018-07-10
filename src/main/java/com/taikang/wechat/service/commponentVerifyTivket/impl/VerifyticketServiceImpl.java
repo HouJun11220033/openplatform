@@ -58,7 +58,7 @@ public class VerifyticketServiceImpl implements VerifyTicketService {
      * @return 凭证数据
      */
     @Override
-    public ComponentAcceptToken selectTicket() {
+    public VerifyTicket selectTicket() {
         //获取最老的数据
         return verifyTicketDao.selectTicket();
     }
@@ -71,15 +71,15 @@ public class VerifyticketServiceImpl implements VerifyTicketService {
     public void deleteTicket() {
         //删除马上失效的数据
         long t = System.currentTimeMillis();
-        ComponentAcceptToken componentAcceptToken = this.selectTicket();
-        if (componentAcceptToken != null) {
-            Long begTime = componentAcceptToken.getBegTime();
-            Long expiresIn = componentAcceptToken.getExpiresIn();
+        VerifyTicket verifyTicket = this.selectTicket();
+        if (verifyTicket != null) {
+            Long begTime = verifyTicket.getBegTime();
+            Long expiresIn = verifyTicket.getExpiresIn();
             Long middle = t-begTime;
             Long aLong=(middle-expiresIn);
             if (aLong.compareTo(new Long("36000"))<=0) {
                 //删除第一条数据
-                verifyTicketDao.deleteTicket(componentAcceptToken.getComponentAcceptTokenId());
+                verifyTicketDao.deleteTicket(verifyTicket.getVerifyTicketId());
             }
         }
     }

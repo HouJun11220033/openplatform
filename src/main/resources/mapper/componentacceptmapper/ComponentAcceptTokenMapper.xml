@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.taikang.wechat.dao.componentaccepttoken.ComponentAcceptTokenDao">
+
+
+    <insert id="insertAcceptTokenDao">
+         INSERT INTO COMPONENT_ACCEPT_TOKEN (
+        COMPONENT_ACCEPT_TOKEN_ID,
+        ACCEPT_TOKEN,
+        EXPIRES_IN,
+        BEG_TIME,
+        CREATE_TIME,
+        UPDATE_TIME)VALUES (
+        #{componentAcceptTokenId},
+        #{acceptToken},
+        #{expiresIn},
+        #{begTime},
+        #{updateTime}
+        #{updateTime}
+        )
+    </insert>
+    <select id="selectAcceptToken" resultType="com.taikang.wechat.model.weChat.ComponentAcceptToken">
+        SELECT * FROM COMPONENT_ACCEPT_TOKEN
+    </select>
+    <delete id="deleteAcceptToken">
+        DELETE FROM COMPONENT_ACCEPT_TOKEN WHERE COMPONENT_ACCEPT_TOKEN_ID=#{id}
+    </delete>
+</mapper>

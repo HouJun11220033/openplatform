@@ -15,6 +15,7 @@
         #{componentVerifyTicket},
         #{expiresIn},
         #{begTime},
+        #{createTime}
         #{updateTime}
         )
     </insert>

@@ -26,7 +26,7 @@ public interface VerifyTicketDao {
      *
      * @return 凭证数据
      */
-    ComponentAcceptToken selectTicket();
+    VerifyTicket selectTicket();
 
     /**
      * 删除凭证

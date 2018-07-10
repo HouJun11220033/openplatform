@@ -19,6 +19,10 @@ public class ComponentAcceptToken {
      */
     private String componentAcceptTokenId;
     /**
+     * 令牌
+     */
+    private String acceptToken;
+    /**
      * 有效时间
      */
    private Long expiresIn;

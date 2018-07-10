@@ -2,10 +2,9 @@ package com.taikang.wechat.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.taikang.wechat.dao.ShowDao;
+import com.taikang.wechat.dao.UserInfoDao;
 import com.taikang.wechat.model.UserInfo;
-import com.taikang.wechat.model.utils.PageBean;
-import com.taikang.wechat.service.ShowService;
+import com.taikang.wechat.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,11 +18,11 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class ShowServiceImpl implements ShowService {
-    private final ShowDao showDao;
+public class UserInfoServiceImpl implements UserInfoService {
+    private final UserInfoDao userInfoDao;
     @Autowired
-    public ShowServiceImpl(ShowDao showDao) {
-        this.showDao = showDao;
+    public UserInfoServiceImpl(UserInfoDao userInfoDao) {
+        this.userInfoDao = userInfoDao;
     }
 
     /**
@@ -37,13 +36,13 @@ public class ShowServiceImpl implements ShowService {
     public String selectByIdService(Integer id) {
 //        Page<Object> objects = PageHelper.startPage(0, 10)
         if (id==null) return null;
-        return showDao.selectNameById(id);
+        return userInfoDao.selectNameById(id);
     }
 
     @Override
     public PageInfo<UserInfo> select() {
         PageHelper.startPage(0,5);
-        List<UserInfo> select = showDao.select();
+        List<UserInfo> select = userInfoDao.select();
         log.info("hello");
         return new PageInfo<>(select);
     }

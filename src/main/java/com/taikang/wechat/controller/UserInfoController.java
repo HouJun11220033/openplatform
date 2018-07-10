@@ -4,10 +4,9 @@ import com.github.pagehelper.PageInfo;
 import com.taikang.wechat.constant.ExceptionEnum;
 import com.taikang.wechat.controller.DTO.UserInfoDTO;
 import com.taikang.wechat.model.UserInfo;
-import com.taikang.wechat.service.ShowService;
+import com.taikang.wechat.service.UserInfoService;
 import com.taikang.wechat.utils.voutils.ResponseResult;
 import com.taikang.wechat.utils.voutils.ResultResponseUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("showController")
-public class ShowController {
+public class UserInfoController {
 
     //根据ID查询姓名
     private static final String SELECT_BY_ID = "selectById";
@@ -25,10 +24,10 @@ public class ShowController {
     //=========================================
     //测试
     private static final String Find = "find";
-    private final ShowService showService;
+    private final UserInfoService userInfoService;
     @Autowired
-    public ShowController(ShowService showService) {
-        this.showService = showService;
+    public UserInfoController(UserInfoService userInfoService) {
+        this.userInfoService = userInfoService;
     }
     /**
      * @return  姓名
@@ -53,7 +52,7 @@ public class ShowController {
     }
     @PostMapping(SELECT)
     public PageInfo<UserInfo> selectAction(){
-        return showService.select();
+        return userInfoService.select();
     }
 
     //自测

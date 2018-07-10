@@ -11,7 +11,7 @@ import java.util.List;
  * @date: Created in 14:28 2018/7/5
  */
 @Mapper
-public interface ShowDao {
+public interface UserInfoDao {
     /**
      * @author: 张清森
      * @description: 通过id 查询姓名

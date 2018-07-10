@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.taikang.wechat.dao.verifyTicketDao.VerifyTicketDao">
+
+
+    <insert id="insertTicketDao">
+        INSERT INTO VERIFY_TICKET (
+        VERIFY_TICKET_ID,
+        COMPONENT_VERIFY_TICKET,
+        EXPIRES_IN,
+        BEG_TIME,
+        CREATE_TIME,
+        UPDATE_TIME)VALUES (
+        #{verifyTicket},
+        #{componentVerifyTicket},
+        #{expiresIn},
+        #{begTime},
+        #{updateTime}
+        )
+    </insert>
+    <select id="selectTicket" resultType="com.taikang.wechat.model.weChat.ComponentAcceptToken">
+        SELECT *,MIN(EXPIRES_IN) FROM VERIFY_TICKET LIMIT 0,1
+    </select>
+    <delete id="deleteTicket">
+      DELETE FROM VERIFY_TICKET WHERE VERIFY_TICKET_ID=#{id}
+    </delete>
+</mapper>

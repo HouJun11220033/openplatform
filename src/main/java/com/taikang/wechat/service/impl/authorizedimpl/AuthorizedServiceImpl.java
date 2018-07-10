@@ -47,7 +47,11 @@ public class AuthorizedServiceImpl implements AuthorizedService {
         log.info("encrypt_type:" + encryptType);
         log.info("nonce:" + nonce);
         log.info("msg_signature:" + msgSignature);
-        // todo boolean checkSignature = WeChatUtils.checkSignature(WeChatContants.TOKEN, msgSignature, timestamp, nonce);
+       boolean checkSignature = WeChatUtils.checkSignature(WeChatContants.TOKEN, msgSignature, timestamp, nonce);
+       if (!checkSignature){
+           log.info("签名错误");
+           return;
+       }
         //======================调用接口获取getComponentVerifyTicket===============//
         String componentVerifyTicket = getComponentVerifyTicket(request, timestamp, nonce, msgSignature);
         //=====================调用接口获取component_access_token=============//
@@ -65,6 +69,7 @@ public class AuthorizedServiceImpl implements AuthorizedService {
             WeChatPreAuthCodeVo preAuthCodeVo = JSON.parseObject(result1, WeChatPreAuthCodeVo.class);
             preAuthCode = preAuthCodeVo.getPre_auth_code();
             //将预授权码存在数据库中
+
             Map<String, Object> where = new HashMap<>(16);
             where.put("dic_type_id", "THRID_WECHAT_PRE_CODE");
 //            QueryResult<CsDictVo> page = csDictService.findByPage(where);

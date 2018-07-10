@@ -3,7 +3,7 @@
 <mapper namespace="com.taikang.wechat.dao.ShowDao">
 
     <select id="selectNameById" resultType="java.lang.String">
-      select NAME from mytest where ID=1
+      select NAME from mytest where ID=#{id}
     </select>
     <select id="select" resultType="com.taikang.wechat.model.UserInfo">
       select * from mytest

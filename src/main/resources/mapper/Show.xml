@@ -6,6 +6,6 @@
       select NAME from mytest where ID=#{id}
     </select>
     <select id="select" resultType="com.taikang.wechat.model.UserInfo">
-      select * from mytest
+      select * from user_info
     </select>
 </mapper>

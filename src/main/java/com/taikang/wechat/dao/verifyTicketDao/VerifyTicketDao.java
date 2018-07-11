@@ -1,7 +1,7 @@
 package com.taikang.wechat.dao.verifyTicketDao;
 
 
-import com.taikang.wechat.model.weChat.ComponentAcceptToken;
+
 import com.taikang.wechat.model.weChat.VerifyTicket;
 import org.apache.ibatis.annotations.Mapper;
 

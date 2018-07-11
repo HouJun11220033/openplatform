@@ -34,7 +34,7 @@ public class VerifyticketServiceImpl implements VerifyTicketService {
 
     /**
      * 新增凭证数据
-     *VERIFY_TICKET
+     *
      * @param verifyTicket 凭证
      */
     @Override

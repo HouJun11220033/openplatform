@@ -4,25 +4,26 @@
 
 
     <insert id="insertTicketDao">
-        INSERT INTO VERIFY_TICKET (
+        INSERT INTO verify_ticket (
         VERIFY_TICKET_ID,
         COMPONENT_VERIFY_TICKET,
         EXPIRES_IN,
         BEG_TIME,
         CREATE_TIME,
         UPDATE_TIME)VALUES (
-        #{verifyTicket},
+        #{verifyTicketId},
         #{componentVerifyTicket},
         #{expiresIn},
         #{begTime},
-        #{createTime}
+        #{createTime},
         #{updateTime}
         )
     </insert>
-    <select id="selectTicket" resultType="com.taikang.wechat.model.weChat.ComponentAcceptToken">
-        SELECT *,MIN(EXPIRES_IN) FROM VERIFY_TICKET LIMIT 0,1
+    <select id="selectTicket" resultType="com.taikang.wechat.model.weChat.VerifyTicket">
+        SELECT * FROM verify_ticket ORDER BY CREATE_TIME DESC LIMIT 0,1
     </select>
     <delete id="deleteTicket">
-      DELETE FROM VERIFY_TICKET WHERE VERIFY_TICKET_ID=#{id}
+      DELETE FROM verify_ticket WHERE VERIFY_TICKET_ID=#{id}
     </delete>
+
 </mapper>

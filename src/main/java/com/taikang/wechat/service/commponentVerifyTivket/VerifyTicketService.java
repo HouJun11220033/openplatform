@@ -26,4 +26,5 @@ public interface VerifyTicketService {
      * 删除凭证
      */
     void deleteTicket();
+
 }

@@ -52,7 +52,7 @@ public class PreCodeServiceImpl implements PreCodeService {
      * @return 预授权码数据
      */
     @Override
-    public ComponentAcceptToken selectPreCode() {
+    public PreCode selectPreCode() {
 
         return preCodeDao.selectProCodeDao();
     }
@@ -86,8 +86,8 @@ public class PreCodeServiceImpl implements PreCodeService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void selectAndUpdata(PreCode preCode) {
-        ComponentAcceptToken componentAcceptToken = this.selectPreCode();
-        if (componentAcceptToken!=null){
+        PreCode selectPreCode = this.selectPreCode();
+        if (selectPreCode!=null){
             this.updatePreCodeByPreCodeId(preCode);
         }else {
             this.insertPreCode(preCode);

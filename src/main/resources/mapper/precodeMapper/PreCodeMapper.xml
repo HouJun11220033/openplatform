@@ -10,7 +10,7 @@
         #{preCodeId},#{preCode},#{expiresIn},#{begTime},#{createTime},#{updateTime}
         )
     </insert>
-    <select id="selectProCodeDao" resultType="com.taikang.wechat.model.weChat.ComponentAcceptToken">
+    <select id="selectProCodeDao" resultType="com.taikang.wechat.model.weChat.PreCode">
         SELECT * FROM PRE_CODE
     </select>
     <delete id="deletePreCodeDao">

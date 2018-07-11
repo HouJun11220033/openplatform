@@ -20,7 +20,7 @@ public interface PreCodeService {
      * 查询预授权码
      * @return 预授权码数据
      */
-    ComponentAcceptToken selectPreCode();
+    PreCode selectPreCode();
 
     /**
      * 删除预授权码

@@ -26,7 +26,7 @@ public interface PreCodeDao {
      *
      * @return 预授权码
      */
-    ComponentAcceptToken selectProCodeDao();
+    PreCode selectProCodeDao();
 
     /**
      * 删除预授权码

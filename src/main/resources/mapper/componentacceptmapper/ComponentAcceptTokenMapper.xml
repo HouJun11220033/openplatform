@@ -15,7 +15,7 @@
         #{acceptToken},
         #{expiresIn},
         #{begTime},
-        #{updateTime}
+        #{createTime},
         #{updateTime}
         )
     </insert>

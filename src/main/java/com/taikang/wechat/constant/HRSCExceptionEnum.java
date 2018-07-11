@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 public enum HRSCExceptionEnum implements IExceptionEnum {
     //-----------------------------异常-----------------------------
     PARAMGRAM_MISS("TK-00002", "参数缺失"),
+    PRE_AUTH_CODE_MISS("TK-00003", "预授权码为空！"),
     ;
     @Getter
     private String code;

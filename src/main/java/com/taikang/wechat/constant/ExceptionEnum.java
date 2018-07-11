@@ -15,6 +15,7 @@ public enum ExceptionEnum implements IExceptionEnum {
     //region 系统类
     INVOKING_ERROR("CPYY-00000", "操作失败"),
     INVOKING_SUCCESS("CPYY-00001", "调用成功"),
+
     ;
     @Getter
     private String code;

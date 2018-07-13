@@ -1,5 +1,8 @@
 package com.taikang.wechat.service.authorized;
 
+import com.taikang.wechat.model.weChat.AuthorizationInfo;
+import com.taikang.wechat.model.weChat.BigAuthorizationInfo;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,8 +16,33 @@ public interface AuthorizedService {
      * 处理微信授权事件
      * @param request 请求
      * @param response 响应
-     * @throws Exception
      */
     void handleAuthorize(HttpServletRequest request,
                          HttpServletResponse response) throws Exception;
+
+    /**
+     * 新增授权信息
+     * @param bigAuthorizationInfo 授权信息
+     */
+    void insertAuthorService(BigAuthorizationInfo bigAuthorizationInfo);
+
+    /**
+     * 刷新令牌
+     * @return 授权信息
+     */
+    AuthorizationInfo doRefreshToken(String authorizationInfoId);
+
+    /**
+     * 通过id查询授权信息
+     * @param authorizationInfoId 授权信息主键id
+     * @return 全部授权信息
+     */
+    BigAuthorizationInfo findBigAuthorizationInfoByid(String authorizationInfoId);
+
+    /**
+     * 更新授权信息
+     * @param bigAuthorizationInfo 授权信息
+     */
+    void updateAuthorizationInfoById(BigAuthorizationInfo bigAuthorizationInfo);
+
 }

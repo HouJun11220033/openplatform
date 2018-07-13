@@ -2,8 +2,10 @@ package com.taikang.wechat.service.impl.authorizedimpl;
 
 import com.alibaba.fastjson.JSON;
 import com.taikang.wechat.config.handleexception.ControllerException;
+import com.taikang.wechat.config.handleexception.ServiceException;
 import com.taikang.wechat.constant.HRSCExceptionEnum;
 import com.taikang.wechat.constant.WeChatContants;
+import com.taikang.wechat.dao.authorDao.AuthorDao;
 import com.taikang.wechat.model.weChat.*;
 import com.taikang.wechat.service.authorized.AuthorizedService;
 import com.taikang.wechat.service.commponentVerifyTivket.VerifyTicketService;
@@ -13,8 +15,11 @@ import com.taikang.wechat.utils.WeChatUtils;
 import com.taikang.wechat.utils.aes.AesException;
 import com.taikang.wechat.utils.aes.WXBizMsgCrypt;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,12 +39,17 @@ public class AuthorizedServiceImpl implements AuthorizedService {
     private final VerifyTicketService ticketService;
     private final ComponentAcceptTokenService acceptTokenService;
     private final PreCodeService preCodeService;
+    private final AuthorDao authorDao;
 
     @Autowired
-    public AuthorizedServiceImpl(VerifyTicketService ticketService, ComponentAcceptTokenService acceptTokenService, PreCodeService preCodeService) {
+    public AuthorizedServiceImpl(VerifyTicketService ticketService,
+                                 ComponentAcceptTokenService acceptTokenService,
+                                 PreCodeService preCodeService, AuthorDao authorDao) {
         this.ticketService = ticketService;
         this.acceptTokenService = acceptTokenService;
         this.preCodeService = preCodeService;
+
+        this.authorDao = authorDao;
     }
 
     /**
@@ -94,6 +104,120 @@ public class AuthorizedServiceImpl implements AuthorizedService {
         //将预授权码存在数据库中
         preCodeService.updatePreCodeByPreCodeId(preCode);
     }
+    /**
+     * 新增授权信息
+     * @param bigAuthorizationInfo 授权信息
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void insertAuthorService(BigAuthorizationInfo bigAuthorizationInfo) {
+        if (bigAuthorizationInfo==null){
+            throw  new ServiceException(HRSCExceptionEnum.PARAMGRAM_MISS);
+        }
+        authorDao.insertAuthorDao(bigAuthorizationInfo);
+    }
+    /**
+     * 刷新令牌
+     * @return 授权信息
+     */
+    @Override
+    public AuthorizationInfo doRefreshToken(String authorizationInfoId) {
+        //第三方id
+        String thridAppid = WeChatContants.THRID_APPID;
+        //查询授权信息 私有内部使用  todo 编写公共查看接口 附带被迫刷新令牌
+        BigAuthorizationInfo bigAuthorizationInfo = this.getAuthorInfoService(authorizationInfoId);
+        if (bigAuthorizationInfo==null){
+            throw  new ServiceException(HRSCExceptionEnum.UNABLE_GET_AUTHOR_INFO_BY_ID);
+        }
+        if (StringUtils.isEmpty(thridAppid)){
+            throw  new ServiceException(HRSCExceptionEnum.CONFIG_INFO_ERROR);
+        }
+        ComponentAcceptToken componentAcceptToken = acceptTokenService.selectAcceptToken();
+        if (componentAcceptToken==null){
+            //todo 调用被迫刷新机制
+            throw  new ServiceException(HRSCExceptionEnum.COMPONENT_ACCESS_TOKEN_MISS);
+        }
+        String url = WeChatContants.REFRESH_AUTHORIZER_ACCESS_TOKEN;
+        String formatUrl = String.format(url, componentAcceptToken.getAcceptToken());
+        GetRefreshTokenVo getRefreshTokenVo = new GetRefreshTokenVo();
+        getRefreshTokenVo.setAuthorizer_appid(bigAuthorizationInfo.getAuthorizer_appid());
+        getRefreshTokenVo.setAuthorizer_refresh_token(bigAuthorizationInfo.getAuthorizer_refresh_token());
+        getRefreshTokenVo.setComponent_appid(thridAppid);
+        String resultJson = WeChatUtils.postUrl(formatUrl, getRefreshTokenVo);
+        AuthorizationInfo authorizationInfo = JSON.parseObject(resultJson, AuthorizationInfo.class);
+        authorizationInfo.setAuthorizer_appid(authorizationInfoId);
+        return authorizationInfo;
+    }
+    /**
+     * 通过id查询授权信息
+     * @param authorizationInfoId 授权信息主键id
+     * @return 全部授权信息
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED,rollbackFor = {ServiceException.class,Exception.class})
+    public BigAuthorizationInfo findBigAuthorizationInfoByid(String authorizationInfoId) {
+        if (StringUtils.isEmpty(authorizationInfoId)){
+            throw new ServiceException(HRSCExceptionEnum.PARAMGRAM_MISS);
+        }
+        BigAuthorizationInfo authorInfoService = this.getAuthorInfoService(authorizationInfoId);
+        if (authorInfoService==null){
+            //todo 考虑是否需要跳转授权页面
+            throw new ServiceException(HRSCExceptionEnum.UNABLE_GET_AUTHOR_INFO_BY_ID);
+        }
+        BigAuthorizationInfo bigAuthorizationInfo= authorDao.findBigAuthorizationInfoByIdDao(authorizationInfoId);
+        //被动刷新
+        if (getaBoolean(bigAuthorizationInfo)){
+            //刷新token
+            AuthorizationInfo authorizationInfo = this.doRefreshToken(authorizationInfoId);
+            //更新数据库
+            bigAuthorizationInfo.setBegTime(System.currentTimeMillis()/1000L);
+            bigAuthorizationInfo.setExpires_in(authorizationInfo.getExpires_in());
+            bigAuthorizationInfo.setAuthorizer_access_token(authorizationInfo.getAuthorizer_access_token());
+            bigAuthorizationInfo.setAuthorizer_refresh_token(authorizationInfo.getAuthorizer_refresh_token());
+            this.updateAuthorizationInfoById(bigAuthorizationInfo);
+        }
+        return bigAuthorizationInfo;
+    }
+
+    /**
+     * 校验是否超时
+     * @param bigAuthorizationInfo 授权信息
+     * @return 是否
+     */
+    private Boolean getaBoolean(BigAuthorizationInfo bigAuthorizationInfo) {
+        Long begTime = bigAuthorizationInfo.getBegTime();
+        Long currentTimeMillis = System.currentTimeMillis();
+        Long tokenExperiIn = WeChatContants.TOKEN_EXPERI_IN;
+        Long middle=(currentTimeMillis-begTime)/1000L;
+        Long expiresIn = bigAuthorizationInfo.getExpires_in();
+        Long chazhi = middle-expiresIn;
+        return chazhi<=tokenExperiIn;
+    }
+
+    /**
+     * 更新授权信息
+     * @param bigAuthorizationInfo 授权信息
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED ,rollbackFor = {ServiceException.class,Exception.class})
+    public void updateAuthorizationInfoById(BigAuthorizationInfo bigAuthorizationInfo) {
+        if (bigAuthorizationInfo==null){
+            throw new ServiceException(HRSCExceptionEnum.PARAMGRAM_MISS);
+        }
+        authorDao.updateAuthorizationInfoByIdDao(bigAuthorizationInfo);
+    }
+
+    /**
+     * 内部获取授权基本信息
+     * @param authorizationInfoId 主键id
+     * @return 授权信息
+     */
+    private BigAuthorizationInfo getAuthorInfoService(String authorizationInfoId) {
+        if (StringUtils.isEmpty(authorizationInfoId)){
+            throw new ServiceException(HRSCExceptionEnum.PARAMGRAM_MISS);
+        }
+        return authorDao.findAuthorizationInfoByIdDao(authorizationInfoId);
+    }
 
     private boolean isGetAcceptToken() {
         ComponentAcceptToken componentAcceptTokenPre = acceptTokenService.selectAcceptToken();
@@ -103,7 +227,7 @@ public class AuthorizedServiceImpl implements AuthorizedService {
             Long expiresInPre = componentAcceptTokenPre.getExpiresIn();
             Long middle = t - begTime;
             Long aLong = (middle - expiresInPre);
-            if (aLong.compareTo(new Long("12000")) <= 0) {
+            if (aLong.compareTo(new Long("1200")) <= 0) {
                 return true;
             }
         }else {

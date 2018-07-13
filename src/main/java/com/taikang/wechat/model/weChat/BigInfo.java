@@ -13,6 +13,7 @@ import java.io.Serializable;
 public class BigInfo implements Serializable {
 
     private static final long serialVersionUID = -2849274418407677601L;
-    private AuthorizationInfo authorizationInfo;
+    private AuthorizerInfo authorizer_info;
+    private AuthorizationInfo authorization_info;
 
 }

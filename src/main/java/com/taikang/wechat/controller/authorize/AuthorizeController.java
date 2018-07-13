@@ -1,16 +1,10 @@
 package com.taikang.wechat.controller.authorize;
 
-import com.alibaba.fastjson.JSON;
-import com.taikang.wechat.constant.WeChatContants;
-import com.taikang.wechat.model.weChat.WeChatThridGetTokenVo;
+
 import com.taikang.wechat.service.authorized.AuthorizedService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

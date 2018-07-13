@@ -21,4 +21,5 @@
         SET PRE_CODE=#{preCode},BEG_TIME=#{begTime},UPDATE_TIME=#{updateTime}
         WHERE PRE_CODE_ID=#{preCodeId}
     </update>
+
 </mapper>

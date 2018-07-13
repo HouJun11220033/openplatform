@@ -12,4 +12,8 @@ public class FuncscopeCategory {
      * 功能id
      */
     private String id;
+    /**
+     * 描述
+     */
+    private String massage;
 }

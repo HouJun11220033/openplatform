@@ -15,14 +15,12 @@ import java.util.List;
  * 张清森
  */
 public class AuthorizationInfo {
-    /**
-     * 主键id
-     */
-    private String AuthorizationInfoId;
+
     /**
      * 公众号id
      */
     private String authorizer_appid;
+    private String authorization_appid;
     /**
      * 授权令牌
      */
@@ -39,17 +37,6 @@ public class AuthorizationInfo {
     /**
      * 权限集
      */
-    private FuncInfo func_info;
-    /**
-     * 获取时间
-     */
-    private Long begTime;
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-    /**
-     * 修改时间
-     */
-    private Date updateTime;
+    private List<FuncInfo> func_info;
+
 }

@@ -36,4 +36,5 @@ public interface PreCodeDao {
      * 更新预授权码
      */
     void updatePreCodeByPreCodeId(PreCode preCode);
+
 }

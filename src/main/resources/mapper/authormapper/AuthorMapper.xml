@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.taikang.wechat.dao.authorDao.AuthorDao">
+<resultMap id="auResult" type="com.taikang.wechat.model.weChat.BigAuthorizationInfo">
+    <id property="authorizationInfoId" column="AUTHORIZATION_INFO_ID"/>
+    <result property="authorizer_appid" column="AUTHORIZER_APPID"/>
+
+    <result property="authorizer_access_token" column="AUTHORIZER_ACCESS_TOKEN"/>
+    <result property="expires_in" column="EXPIRES_IN"/>
+    <result property="authorizer_refresh_token" column="AUTHORIZER_REFRESH_TOKEN"/>
+    <result property="begTime" column="BEG_TIME"/>
+    <result property="nick_name" column="NICK_NAME"/>
+    <result property="head_img" column="HEAD_IMG"/>
+    <result property="service_type" column="SERVICE_TYPE"/>
+    <result property="verify_type" column="VERIFY_TYPE"/>
+    <result property="user_name" column="USER_NAME"/>
+    <result property="principal_name" column="PRINCIPAL_NAME"/>
+    <result property="alias" column="ALIAS"/>
+    <result property="createTime" column="CREATE_TIME"/>
+    <result property="fensiNum" column="FENSI_NUM"/>
+    <result property="qrcode_url" column="QRCODE_URL"/>
+    <result property="userId" column="USER_ID"/>
+
+</resultMap>
+    <insert id="insertAuthorDao">
+        INSERT INTO authorization_info(
+        AUTHORIZATION_INFO_ID,
+        AUTHORIZER_APPID,
+        AUTHORIZER_ACCESS_TOKEN,
+        EXPIRES_IN,
+        AUTHORIZER_REFRESH_TOKEN,
+        BEG_TIME,
+        NICK_NAME,
+        HEAD_IMG,
+        SERVICE_TYPE,
+        VERIFY_TYPE,
+        USER_NAME,
+        PRINCIPAL_NAME,
+        ALIAS,
+        CREATE_TIME,
+        FENSI_NUM,
+        QRCODE_URL,
+        USER_ID
+        )VALUES (
+        #{authorizationInfoId},
+        #{authorizer_appid},
+        #{authorizer_access_token},
+        #{expires_in},
+        #{authorizer_refresh_token},
+        #{begTime},
+        #{nick_name},
+        #{head_img},
+        #{service_type},
+        #{verify_type},
+        #{user_name},
+        #{principal_name},
+        #{alias},
+        #{createTime},
+        #{fensiNum},
+        #{qrcode_url},
+        #{userId}
+        )
+    </insert>
+    <select id="findAuthorizationInfoByIdDao" resultMap="auResult">
+      SELECT AUTHORIZATION_INFO_ID,AUTHORIZER_APPID,
+       AUTHORIZER_ACCESS_TOKEN,EXPIRES_IN,
+       AUTHORIZER_REFRESH_TOKEN
+       FROM authorization_info WHERE AUTHORIZATION_INFO_ID=#{authorizationInfoId}
+    </select>
+    <select id="findBigAuthorizationInfoByIdDao" resultMap="auResult">
+      SELECT AUTHORIZATION_INFO_ID,AUTHORIZER_APPID,
+       AUTHORIZER_ACCESS_TOKEN,EXPIRES_IN,
+       AUTHORIZER_REFRESH_TOKEN,BEG_TIME,
+       NICK_NAME,HEAD_IMG,
+       SERVICE_TYPE,VERIFY_TYPE,
+       USER_NAME,PRINCIPAL_NAME,
+       ALIAS,CREATE_TIME,FENSI_NUM,QRCODE_URL,USER_ID
+       FROM authorization_info WHERE AUTHORIZATION_INFO_ID=#{authorizationInfoId}
+    </select>
+    <update id="updateAuthorizationInfoByIdDao">
+    UPDATE authorization_info SET
+        <trim suffixOverrides=",">
+            <if test="authorizer_access_token !=null">AUTHORIZER_ACCESS_TOKEN=#{authorizer_access_token},</if>
+            <if test="expires_in !=null">EXPIRES_IN=#{expires_in},</if>
+            <if test="authorizer_refresh_token!=null">AUTHORIZER_REFRESH_TOKEN=#{authorizer_refresh_token},</if>
+            <if test="begTime!=null">BEG_TIME=#{begTime},</if>
+        </trim>
+    WHERE AUTHORIZATION_INFO_ID=#{authorizationInfoId}
+    </update>
+</mapper>

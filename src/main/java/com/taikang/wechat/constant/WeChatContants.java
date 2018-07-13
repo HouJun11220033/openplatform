@@ -21,7 +21,11 @@ public interface WeChatContants {
      */
     String THRID_APPSECRET="";
     /**
-     * 自己的域名 "http://自己的域名.com/a/weixin2/authInfo"
+     * token 有效时间
+     */
+    Long TOKEN_EXPERI_IN=600L;
+    /**
+     * 自己的域名 "http://自己的域名.com/a/weixin2/authInfo/{userId}"
      */
     String OWN_SCOPE="";
     /**
@@ -40,4 +44,12 @@ public interface WeChatContants {
      * 获取AuthAccessToken路径
      */
     String GET_AUTH_ACCESS_TOKEN="https://api.weixin.qq.com/cgi-bin/component/api_query_auth?component_access_token=%s";
+    /**
+     * 获取授权信息路径
+     */
+    String GET_AUTHOR_INFO = "https://api.weixin.qq.com/cgi-bin/component/api_get_authorizer_info?component_access_token=%s";
+    /**
+     * 刷新authorizer_access_token路径
+     */
+    String REFRESH_AUTHORIZER_ACCESS_TOKEN="https:// api.weixin.qq.com /cgi-bin/component/api_authorizer_token?component_access_token=%s";
 }

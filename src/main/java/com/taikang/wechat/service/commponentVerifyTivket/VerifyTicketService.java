@@ -27,4 +27,10 @@ public interface VerifyTicketService {
      */
     void deleteTicket();
 
+    /**
+     * 查询最新凭证
+     * @return 凭证信息
+     */
+    VerifyTicket selectTicketNew();
+
 }

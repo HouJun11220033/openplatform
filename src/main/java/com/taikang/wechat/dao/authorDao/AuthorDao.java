@@ -34,4 +34,17 @@ public interface AuthorDao {
      * @param bigAuthorizationInfo 授权信息
      */
     void updateAuthorizationInfoByIdDao(BigAuthorizationInfo bigAuthorizationInfo);
+
+    /**
+     * 更新粉丝数量
+     * @param bigAuthorizationInfo 授权信息
+     */
+    void updateAuthorizationInfoFensiNumByAppid(BigAuthorizationInfo bigAuthorizationInfo);
+
+    /**
+     * 通过appid查询授权信息
+     * @param toUserName appid
+     * @return 授权信息
+     */
+    BigAuthorizationInfo getAuthorInfoByAppidDao(String toUserName);
 }

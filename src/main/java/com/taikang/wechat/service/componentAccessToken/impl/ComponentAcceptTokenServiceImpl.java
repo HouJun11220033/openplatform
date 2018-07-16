@@ -40,7 +40,7 @@ public class ComponentAcceptTokenServiceImpl implements ComponentAcceptTokenServ
     public void insertAcceptToken(ComponentAcceptToken componentAcceptToken) {
         if (componentAcceptToken != null && componentAcceptToken.getAcceptToken() != null) {
             componentAcceptToken.setComponentAcceptTokenId(UUID.randomUUID().toString());
-            componentAcceptToken.setBegTime(System.currentTimeMillis());
+            componentAcceptToken.setBegTime(System.currentTimeMillis()/1000L);
             componentAcceptToken.setCreateTime(new Date());
             componentAcceptToken.setUpdateTime(new Date());
             this.deleteAcceptTokent();
@@ -54,7 +54,6 @@ public class ComponentAcceptTokenServiceImpl implements ComponentAcceptTokenServ
      */
     @Override
     public ComponentAcceptToken selectAcceptToken() {
-
         return componentAcceptTokenDao.selectAcceptToken();
     }
 

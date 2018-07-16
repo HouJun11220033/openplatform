@@ -2,6 +2,7 @@ package com.taikang.wechat.service.authorized;
 
 import com.taikang.wechat.model.weChat.AuthorizationInfo;
 import com.taikang.wechat.model.weChat.BigAuthorizationInfo;
+import com.taikang.wechat.model.weChat.WeChatComponentAccessTokenVo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,5 +45,19 @@ public interface AuthorizedService {
      * @param bigAuthorizationInfo 授权信息
      */
     void updateAuthorizationInfoById(BigAuthorizationInfo bigAuthorizationInfo);
+
+    /**
+     * 变更粉丝数量
+     * @param toUserName appid
+     * @param i 变更类型
+     */
+    void updateAuthorizationInfoFensiNumByAppid(String toUserName, int i);
+
+    /**
+     * 通过appid查询授权信息
+     * @param toUserName appid
+     * @return 授权信息
+     */
+    BigAuthorizationInfo getAuthorInfoByAppidService(String toUserName);
 
 }

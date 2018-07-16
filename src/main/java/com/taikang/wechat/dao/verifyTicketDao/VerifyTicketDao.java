@@ -32,4 +32,10 @@ public interface VerifyTicketDao {
      * 删除凭证
      */
     void deleteTicket(String id);
+    /**
+     * 查询最新凭证
+     * @return 凭证信息
+     */
+    VerifyTicket selectTicketNewDao();
+
 }

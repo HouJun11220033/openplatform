@@ -2,6 +2,7 @@ package com.taikang.wechat.controller.authorize;
 
 
 import com.taikang.wechat.service.authorized.AuthorizedService;
+import com.taikang.wechat.service.wechatthiredservice.WeChatThridService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,19 +13,18 @@ import java.io.PrintWriter;
 
 /**
  * 微信授权
- *
  * @author 张清森
- * @createTime 2018.7.9
  */
 @RestController
 @RequestMapping("weChat")
 @Slf4j
 public class AuthorizeController {
     private final AuthorizedService authorizedService;
-
+    private final WeChatThridService weChatThridService;
     @Autowired
-    public AuthorizeController(AuthorizedService authorizedService) {
+    public AuthorizeController(AuthorizedService authorizedService, WeChatThridService weChatThridService) {
         this.authorizedService = authorizedService;
+        this.weChatThridService = weChatThridService;
     }
 
     /**
@@ -44,6 +44,17 @@ public class AuthorizeController {
             pw.flush();
         } catch (Exception e) {
             log.info("错误信息{}", e.getMessage());
+        }
+    }
+    @RequestMapping(value="/{appid}/callback",method={RequestMethod.GET,RequestMethod.POST})
+    public void callBackEvent(@PathVariable String appid,
+                              HttpServletResponse response,HttpServletRequest request){
+        try {
+            log.info(appid+"进入callback+++++++++++++++++++++++++++++++++");
+            weChatThridService.handleMessage(request,response);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 }

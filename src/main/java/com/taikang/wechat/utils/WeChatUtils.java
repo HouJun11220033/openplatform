@@ -1,6 +1,13 @@
 package com.taikang.wechat.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.taikang.wechat.config.handleexception.ControllerException;
+import com.taikang.wechat.constant.HRSCExceptionEnum;
+import com.taikang.wechat.constant.WeChatContants;
+import com.taikang.wechat.model.weChat.WeChatComponentAccessTokenVo;
+import com.taikang.wechat.model.weChat.WeChatGetPreAuthCodeVo;
+import com.taikang.wechat.model.weChat.WeChatPreAuthCodeVo;
+import com.taikang.wechat.model.weChat.WeChatThridGetTokenVo;
 import com.taikang.wechat.utils.aes.AesException;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
@@ -126,5 +133,66 @@ public class WeChatUtils {
             log.info("路径有误");
             throw new RuntimeException();
         }
+    }
+
+    /**
+     * 发送get请求
+     * @param url 请求路径
+     * @return json
+     */
+    public static String getUrl(String url) {
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            return restTemplate.getForObject(url, String.class);
+        }catch (Exception e){
+            log.info("路径有误");
+            throw new RuntimeException();
+        }
+    }
+    /**
+     * 获取令牌
+     * @param componentVerifyTicket 凭证
+     * @return String
+     */
+    public static WeChatComponentAccessTokenVo getComponentAccessToken(String componentVerifyTicket) {
+        String url = WeChatContants.URL;
+        String result = WeChatUtils.postUrl(url,
+                WeChatThridGetTokenVo
+                        .builder()
+                        .component_appid(WeChatContants.THRID_APPID)
+                        .component_appsecret(WeChatContants.THRID_APPSECRET)
+                        .component_verify_ticket(componentVerifyTicket)
+                        .build());
+        log.info(result);
+        WeChatComponentAccessTokenVo componentAccessTokenVo;
+        if (result != null && result.contains("component_access_token")) {
+            componentAccessTokenVo = JSON.parseObject(result, WeChatComponentAccessTokenVo.class);
+        } else {
+            log.info("获取component_access_token失败！");
+            throw new RuntimeException();
+        }
+        return componentAccessTokenVo;
+    }
+
+    /**
+     * 获取预授权码
+     * @param object 需要被替换的参数
+     * @return WeChatPreAuthCodeVo
+     */
+    public static WeChatPreAuthCodeVo getWeChatPreAuthCodeVo(Object[] object) {
+        String preUrl = String.format(WeChatContants.THRID_PRE_AUTH_CODE, object);
+        String result1 = WeChatUtils.postUrl(preUrl,
+                WeChatGetPreAuthCodeVo.builder()
+                        .component_appid(WeChatContants.THRID_APPID)
+                        .build());
+        log.info(result1);
+        WeChatPreAuthCodeVo preAuthCodeVo;
+        if (result1 != null && result1.contains("pre_auth_code")) {
+            preAuthCodeVo = JSON.parseObject(result1, WeChatPreAuthCodeVo.class);
+        } else {
+            log.info("获取pre_auth_code失败！");
+            throw new ControllerException(HRSCExceptionEnum.PARAMGRAM_MISS);
+        }
+        return preAuthCodeVo;
     }
 }

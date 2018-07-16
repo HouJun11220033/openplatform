@@ -52,4 +52,8 @@ public interface WeChatContants {
      * 刷新authorizer_access_token路径
      */
     String REFRESH_AUTHORIZER_ACCESS_TOKEN="https:// api.weixin.qq.com /cgi-bin/component/api_authorizer_token?component_access_token=%s";
+    /**
+     * 获取公众号粉丝列表路径
+     */
+    String GET_FENSI_TOTAL_URL="https://api.weixin.qq.com/cgi-bin/user/get?access_token=%s&next_openid=%s";
 }

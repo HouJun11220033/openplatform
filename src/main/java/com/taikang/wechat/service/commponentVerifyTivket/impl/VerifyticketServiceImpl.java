@@ -45,7 +45,7 @@ public class VerifyticketServiceImpl implements VerifyTicketService {
         }
         verifyTicket.setVerifyTicketId(UUID.randomUUID().toString());
         verifyTicket.setBegTime(System.currentTimeMillis());
-        verifyTicket.setExpiresIn(7200000L);
+        verifyTicket.setExpiresIn(7200L);
         verifyTicket.setUpdateTime(new Date());
         verifyTicket.setCreateTime(new Date());
         verifyTicketDao.insertTicketDao(verifyTicket);
@@ -82,6 +82,14 @@ public class VerifyticketServiceImpl implements VerifyTicketService {
                 verifyTicketDao.deleteTicket(verifyTicket.getVerifyTicketId());
             }
         }
+    }
+    /**
+     * 查询最新凭证
+     * @return 凭证信息
+     */
+    @Override
+    public VerifyTicket selectTicketNew() {
+        return verifyTicketDao.selectTicketNewDao();
     }
 
 }

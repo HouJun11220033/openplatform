@@ -65,7 +65,8 @@
       SELECT AUTHORIZATION_INFO_ID,AUTHORIZER_APPID,
        AUTHORIZER_ACCESS_TOKEN,EXPIRES_IN,
        AUTHORIZER_REFRESH_TOKEN
-       FROM authorization_info WHERE AUTHORIZATION_INFO_ID=#{authorizationInfoId}
+       FROM authorization_info
+       WHERE AUTHORIZATION_INFO_ID=#{authorizationInfoId}
     </select>
     <select id="findBigAuthorizationInfoByIdDao" resultMap="auResult">
       SELECT AUTHORIZATION_INFO_ID,AUTHORIZER_APPID,
@@ -87,4 +88,14 @@
         </trim>
     WHERE AUTHORIZATION_INFO_ID=#{authorizationInfoId}
     </update>
+    <update id="updateAuthorizationInfoFensiNumByAppid">
+UPDATE authorization_info SET FENSI_NUM=#{fensiNum} WHERE AUTHORIZER_APPID=#{authorizer_appid}
+    </update>
+    <select id="getAuthorInfoByAppidDao" resultMap="auResult">
+SELECT AUTHORIZATION_INFO_ID,AUTHORIZER_APPID,
+       AUTHORIZER_ACCESS_TOKEN,EXPIRES_IN,
+       AUTHORIZER_REFRESH_TOKEN,FENSI_NUM
+       FROM authorization_info
+       WHERE AUTHORIZER_APPID=#{authorizer_appid}
+    </select>
 </mapper>

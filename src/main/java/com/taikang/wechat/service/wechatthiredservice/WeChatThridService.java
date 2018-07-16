@@ -2,7 +2,11 @@ package com.taikang.wechat.service.wechatthiredservice;
 
 import com.taikang.wechat.model.weChat.AuthorizationInfo;
 import com.taikang.wechat.model.weChat.AuthorizerInfo;
+import com.taikang.wechat.model.weChat.BigAuthorizationInfo;
 import com.taikang.wechat.model.weChat.BigInfo;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 微信开放平台
@@ -22,4 +26,18 @@ public interface WeChatThridService {
      * @return 授权对象
      */
     AuthorizerInfo getAuthorizationInfo(AuthorizationInfo authorizationInfo);
+
+    /**
+     * 获取某一公众号下的粉丝总数量
+     * @param bigAuthorizationInfo 公众号信息
+     * @return 数量
+     */
+    Long getFensiTotal(BigAuthorizationInfo bigAuthorizationInfo);
+
+    /**
+     * 处理用户事件
+     * @param request 请求
+     * @param response 响应
+     */
+    void handleMessage(HttpServletRequest request, HttpServletResponse response) throws Exception;
 }

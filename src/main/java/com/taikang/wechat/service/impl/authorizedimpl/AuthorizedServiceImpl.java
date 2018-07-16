@@ -84,7 +84,7 @@ public class AuthorizedServiceImpl implements AuthorizedService {
         String componentAccessToken;
         //判断是否调用微信接口
         if (isGetAcceptToken()){
-            WeChatComponentAccessTokenVo componentAccessTokenVo = getComponentAccessToken(componentVerifyTicket);
+            WeChatComponentAccessTokenVo componentAccessTokenVo =WeChatUtils.getComponentAccessToken(componentVerifyTicket);
             componentAccessToken=componentAccessTokenVo.getComponent_access_token();
             ComponentAcceptToken componentAcceptToken = new ComponentAcceptToken();
             componentAcceptToken.setAcceptToken(componentAccessTokenVo.getComponent_access_token());
@@ -97,7 +97,8 @@ public class AuthorizedServiceImpl implements AuthorizedService {
         }
         //===================获取预授权码pre_auth_code*************************//
         Object[] object = {componentAccessToken};
-        WeChatPreAuthCodeVo preAuthCodeVo = getWeChatPreAuthCodeVo(object);
+        //调用微信
+        WeChatPreAuthCodeVo preAuthCodeVo = WeChatUtils.getWeChatPreAuthCodeVo(object);
         PreCode preCode = new PreCode();
         preCode.setPreCode(preAuthCodeVo.getPre_auth_code());
         preCode.setExpiresIn(preAuthCodeVo.getExpires_in());
@@ -206,6 +207,42 @@ public class AuthorizedServiceImpl implements AuthorizedService {
         }
         authorDao.updateAuthorizationInfoByIdDao(bigAuthorizationInfo);
     }
+    /**
+     * 变更粉丝数量
+     * @param toUserName appid
+     * @param i 变更类型
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED ,rollbackFor = {ServiceException.class,Exception.class})
+    public void updateAuthorizationInfoFensiNumByAppid(String toUserName, int i) {
+        BigAuthorizationInfo bigAuthorizationInfo = this.getAuthorInfoByAppidService(toUserName);
+        if (bigAuthorizationInfo==null){
+            throw  new ServiceException(HRSCExceptionEnum.UNABLE_GET_AUTHOR_INFO_BY_ID);
+        }
+        Long total=bigAuthorizationInfo.getFensiNum()==null?0:bigAuthorizationInfo.getFensiNum();
+        if (i==0){
+            if (total.compareTo(new Long("0"))>0){
+                bigAuthorizationInfo.setFensiNum(total-1);
+            }
+        }else if (i==1){
+            bigAuthorizationInfo.setFensiNum(total+1);
+        }else {
+
+        }
+        authorDao.updateAuthorizationInfoFensiNumByAppid(bigAuthorizationInfo);
+    }
+    /**
+     * 通过appid查询授权信息
+     * @param toUserName appid
+     * @return 授权信息
+     */
+    @Override
+    public BigAuthorizationInfo getAuthorInfoByAppidService(String toUserName) {
+        if (StringUtils.isEmpty(toUserName)){
+            return null;
+        }
+        return authorDao.getAuthorInfoByAppidDao(toUserName);
+    }
 
     /**
      * 内部获取授权基本信息
@@ -221,7 +258,7 @@ public class AuthorizedServiceImpl implements AuthorizedService {
 
     private boolean isGetAcceptToken() {
         ComponentAcceptToken componentAcceptTokenPre = acceptTokenService.selectAcceptToken();
-        long t = System.currentTimeMillis();
+        long t = System.currentTimeMillis()/1000L;
         if (componentAcceptTokenPre != null) {
             Long begTime = componentAcceptTokenPre.getBegTime();
             Long expiresInPre = componentAcceptTokenPre.getExpiresIn();
@@ -236,56 +273,6 @@ public class AuthorizedServiceImpl implements AuthorizedService {
         return false;
     }
 
-    /**
-     * 获取预授权码
-     *
-     * @param object 需要被替换的参数
-     * @return WeChatPreAuthCodeVo
-     */
-    private WeChatPreAuthCodeVo getWeChatPreAuthCodeVo(Object[] object) {
-        String preUrl = String.format(WeChatContants.THRID_PRE_AUTH_CODE, object);
-        String result1 = WeChatUtils.postUrl(preUrl,
-                WeChatGetPreAuthCodeVo.builder()
-                        .component_appid(WeChatContants.THRID_APPID)
-                        .build());
-        log.info(result1);
-        WeChatPreAuthCodeVo preAuthCodeVo;
-        if (result1 != null && result1.contains("pre_auth_code")) {
-            preAuthCodeVo = JSON.parseObject(result1, WeChatPreAuthCodeVo.class);
-        } else {
-            log.info("获取pre_auth_code失败！");
-            throw new ControllerException(HRSCExceptionEnum.PARAMGRAM_MISS);
-        }
-        return preAuthCodeVo;
-    }
-
-    /**
-     * 获取令牌
-     *
-     * @param componentVerifyTicket 凭证
-     * @return String
-     */
-    private WeChatComponentAccessTokenVo getComponentAccessToken(String componentVerifyTicket) {
-        String url = WeChatContants.URL;
-        String result = WeChatUtils.postUrl(url,
-                WeChatThridGetTokenVo
-                        .builder()
-                        .component_appid(WeChatContants.THRID_APPID)
-                        .component_appsecret(WeChatContants.THRID_APPSECRET)
-                        .component_verify_ticket(componentVerifyTicket)
-                        .build());
-        log.info(result);
-        WeChatComponentAccessTokenVo componentAccessTokenVo;
-//        String componentAccessToken;
-        if (result != null && result.contains("component_access_token")) {
-            componentAccessTokenVo = JSON.parseObject(result, WeChatComponentAccessTokenVo.class);
-//            componentAccessToken = componentAccessTokenVo.getComponent_access_token();
-        } else {
-            log.info("获取component_access_token失败！");
-            throw new RuntimeException();
-        }
-        return componentAccessTokenVo;
-    }
 
     /**
      * 获取凭证

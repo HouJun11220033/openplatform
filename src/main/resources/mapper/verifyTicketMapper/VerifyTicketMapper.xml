@@ -20,10 +20,13 @@
         )
     </insert>
     <select id="selectTicket" resultType="com.taikang.wechat.model.weChat.VerifyTicket">
-        SELECT * FROM verify_ticket ORDER BY CREATE_TIME DESC LIMIT 0,1
+        SELECT * FROM verify_ticket ORDER BY CREATE_TIME  LIMIT 0,1
     </select>
     <delete id="deleteTicket">
       DELETE FROM verify_ticket WHERE VERIFY_TICKET_ID=#{id}
     </delete>
+    <select id="selectTicketNewDao" resultType="com.taikang.wechat.model.weChat.VerifyTicket">
+    SELECT * FROM verify_ticket ORDER BY CREATE_TIME DESC LIMIT 0,1
+    </select>
 
 </mapper>

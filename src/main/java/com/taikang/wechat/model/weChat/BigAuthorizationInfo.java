@@ -76,7 +76,7 @@ public class BigAuthorizationInfo {
     /**
      * 粉丝数量
      */
-    private String fensiNum;
+    private Long fensiNum;
     /**
      * 二维码url
      */

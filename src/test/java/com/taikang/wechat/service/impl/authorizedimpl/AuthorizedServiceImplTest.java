@@ -41,5 +41,11 @@ public class AuthorizedServiceImplTest {
     public void updateAuthorizationInfoById() throws Exception {
 
     }
+    @Test
+    public void getAuthorInfoByAppidService() throws Exception {
+        BigAuthorizationInfo bigAuthorizationInfo = authorizedService.getAuthorInfoByAppidService("f4s6d5f4sd65f4sd6");
+        System.out.println(bigAuthorizationInfo);
+        authorizedService.updateAuthorizationInfoFensiNumByAppid("f4s6d5f4sd65f4sd6",0);
+    }
 
 }

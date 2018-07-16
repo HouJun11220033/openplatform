@@ -14,7 +14,7 @@ public enum HRSCExceptionEnum implements IExceptionEnum {
     USER_ID_MISS("TK-00004", "账户id为空!"),
     UNABLE_GET_AUTHOR_INFO_BY_ID("TK-00005", "未找到相应授权信息!"),
     CONFIG_INFO_ERROR("TK-00006", "平台配置参数有误!"),
-    COMPONENT_ACCESS_TOKEN_MISS("TK-00007", "预同行令牌丢失!"),
+    COMPONENT_ACCESS_TOKEN_MISS("TK-00007", "预通行令牌丢失!"),
     ;
     @Getter
     private String code;

@@ -6,6 +6,8 @@ import com.taikang.wechat.model.weChat.BigAuthorizationInfo;
 import com.taikang.wechat.model.weChat.PreCode;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 
 /**
  * @author: 张清森
@@ -47,4 +49,16 @@ public interface AuthorDao {
      * @return 授权信息
      */
     BigAuthorizationInfo getAuthorInfoByAppidDao(String toUserName);
+
+    /**
+     * 通过appid 修改信息
+     * @param bigAuthorizationInfo 授权信息
+     */
+    void updateAuthorizationInfoByAppIdDao(BigAuthorizationInfo bigAuthorizationInfo);
+    /**
+     * 通过userId 查询授权信息
+     * @param userId 账户id
+     * @return 授权信息
+     */
+    List<BigAuthorizationInfo> getAuthorInfoByUserIdDao(String userId);
 }

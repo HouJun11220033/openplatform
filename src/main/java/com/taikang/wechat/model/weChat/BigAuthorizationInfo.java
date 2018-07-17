@@ -85,4 +85,9 @@ public class BigAuthorizationInfo {
      * 用户id
      */
     private String userId;
+    /**
+     * 是否有效
+     */
+    private Integer isEffect;
+
 }

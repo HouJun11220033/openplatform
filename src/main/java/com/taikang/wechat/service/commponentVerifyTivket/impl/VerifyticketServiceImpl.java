@@ -77,7 +77,7 @@ public class VerifyticketServiceImpl implements VerifyTicketService {
             Long expiresIn = verifyTicket.getExpiresIn();
             Long middle = t-begTime;
             Long aLong=(middle-expiresIn);
-            if (aLong.compareTo(new Long("36000"))<=0) {
+            if (aLong.compareTo(new Long("1200"))<=0) {
                 //删除第一条数据
                 verifyTicketDao.deleteTicket(verifyTicket.getVerifyTicketId());
             }

@@ -19,7 +19,7 @@ public class ComponentAcceptTokenServiceImplTest {
     @Rollback(false)
     public void insertAcceptToken() throws Exception {
         ComponentAcceptToken componentAcceptToken = new ComponentAcceptToken();
-        componentAcceptToken.setExpiresIn(7200L);
+        componentAcceptToken.setExpiresIn(72L);
         componentAcceptToken.setAcceptToken("sdfsdgsdg45sdg45s6dfgsg");
         acceptTokenService.insertAcceptToken(componentAcceptToken);
     }
@@ -27,7 +27,6 @@ public class ComponentAcceptTokenServiceImplTest {
     @Test
     public void selectAcceptToken() throws Exception {
         ComponentAcceptToken componentAcceptToken = acceptTokenService.selectAcceptToken();
-        System.out.println(componentAcceptToken.getComponentAcceptTokenId());
     }
 
     @Test

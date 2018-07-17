@@ -47,14 +47,23 @@ public class ComponentAcceptTokenServiceImpl implements ComponentAcceptTokenServ
             componentAcceptTokenDao.insertAcceptTokenDao(componentAcceptToken);
         }
     }
-
     /**
      * 查询令牌数据
      * COMPONENT_ACCEPT_TOKEN
      */
     @Override
     public ComponentAcceptToken selectAcceptToken() {
-        return componentAcceptTokenDao.selectAcceptToken();
+        ComponentAcceptToken componentAcceptToken = componentAcceptTokenDao.selectAcceptToken();
+        if (componentAcceptToken!=null){
+            Long begTime = componentAcceptToken.getBegTime();
+            Long expiresIn = componentAcceptToken.getExpiresIn();
+            Long currentTimeMillis = System.currentTimeMillis()/1000L;
+            Long l = currentTimeMillis - begTime;
+            if (l.compareTo(expiresIn)>=0){
+                return null;
+            }
+        }
+        return componentAcceptToken;
     }
 
     /**

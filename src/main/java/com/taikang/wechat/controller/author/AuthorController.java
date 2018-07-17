@@ -73,6 +73,7 @@ public class AuthorController {
     public void successAuthorizeInfo(
             HttpServletResponse response, HttpServletRequest request, @PathVariable(value = "userId") String userId) {
         if (StringUtils.isEmpty(userId)){
+            log.info("userId为空");
             throw new ServiceException(HRSCExceptionEnum.USER_ID_MISS);
         }
         try {

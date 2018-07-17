@@ -6,6 +6,7 @@ import com.taikang.wechat.model.weChat.WeChatComponentAccessTokenVo;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * 微信授权
@@ -59,5 +60,15 @@ public interface AuthorizedService {
      * @return 授权信息
      */
     BigAuthorizationInfo getAuthorInfoByAppidService(String toUserName);
-
+    /**
+     * 通过userId 查询授权信息
+     * @param userId 账户id
+     * @return 授权信息
+     */
+    List<BigAuthorizationInfo> getAuthorInfoByUserIdService(String userId);
+    /**
+     * 通过appid 修改信息
+     * @param bigAuthorizationInfo 授权信息
+     */
+    void updateAuthorizationInfoByAppId(BigAuthorizationInfo bigAuthorizationInfo);
 }

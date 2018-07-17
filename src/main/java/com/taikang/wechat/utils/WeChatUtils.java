@@ -9,6 +9,7 @@ import com.taikang.wechat.model.weChat.WeChatGetPreAuthCodeVo;
 import com.taikang.wechat.model.weChat.WeChatPreAuthCodeVo;
 import com.taikang.wechat.model.weChat.WeChatThridGetTokenVo;
 import com.taikang.wechat.utils.aes.AesException;
+import com.taikang.wechat.utils.aes.WXBizMsgCrypt;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -194,5 +195,17 @@ public class WeChatUtils {
             throw new ControllerException(HRSCExceptionEnum.PARAMGRAM_MISS);
         }
         return preAuthCodeVo;
+    }
+
+    public static Map<String, String> getStringXmlMap(String timestamp, String nonce, String msgSignature, String xml) throws AesException {
+
+            String encodingAesKey = WeChatContants.ENCODING_AES_KEY;
+            String appId = WeChatContants.THRID_APPID;
+            String token = WeChatContants.TOKEN;
+            WXBizMsgCrypt pc = new WXBizMsgCrypt(token, encodingAesKey, appId);
+            xml = pc.decryptMsg(msgSignature, timestamp, nonce, xml);
+            log.info("解密后的：" + xml);
+            return WeChatUtils.parseXml(xml);
+
     }
 }

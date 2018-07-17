@@ -1,9 +1,10 @@
 package com.taikang.wechat.service.impl.authorizedimpl;
 
 import com.alibaba.fastjson.JSON;
-import com.taikang.wechat.config.handleexception.ControllerException;
 import com.taikang.wechat.config.handleexception.ServiceException;
+import com.taikang.wechat.constant.ContantsEnum;
 import com.taikang.wechat.constant.HRSCExceptionEnum;
+import com.taikang.wechat.constant.ProEnum;
 import com.taikang.wechat.constant.WeChatContants;
 import com.taikang.wechat.dao.authorDao.AuthorDao;
 import com.taikang.wechat.model.weChat.*;
@@ -12,8 +13,6 @@ import com.taikang.wechat.service.commponentVerifyTivket.VerifyTicketService;
 import com.taikang.wechat.service.componentAccessToken.ComponentAcceptTokenService;
 import com.taikang.wechat.service.precode.PreCodeService;
 import com.taikang.wechat.utils.WeChatUtils;
-import com.taikang.wechat.utils.aes.AesException;
-import com.taikang.wechat.utils.aes.WXBizMsgCrypt;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,6 +42,7 @@ public class AuthorizedServiceImpl implements AuthorizedService {
     private final PreCodeService preCodeService;
     private final AuthorDao authorDao;
 
+
     @Autowired
     public AuthorizedServiceImpl(VerifyTicketService ticketService,
                                  ComponentAcceptTokenService acceptTokenService,
@@ -48,7 +50,6 @@ public class AuthorizedServiceImpl implements AuthorizedService {
         this.ticketService = ticketService;
         this.acceptTokenService = acceptTokenService;
         this.preCodeService = preCodeService;
-
         this.authorDao = authorDao;
     }
 
@@ -74,37 +75,59 @@ public class AuthorizedServiceImpl implements AuthorizedService {
             log.info("签名错误");
             return;
         }
-        //======================获取getComponentVerifyTicket===============//
-        String componentVerifyTicket = getComponentVerifyTicket(request, timestamp, nonce, msgSignature);
-        VerifyTicket verifyTicket = new VerifyTicket();
-        verifyTicket.setComponentVerifyTicket(componentVerifyTicket);
-        //保存凭证
-        ticketService.insertTicket(verifyTicket);
-        //=====================调用接口获取component_access_token=============//
-        String componentAccessToken;
-        //判断是否调用微信接口
-        if (isGetAcceptToken()){
-            WeChatComponentAccessTokenVo componentAccessTokenVo =WeChatUtils.getComponentAccessToken(componentVerifyTicket);
-            componentAccessToken=componentAccessTokenVo.getComponent_access_token();
-            ComponentAcceptToken componentAcceptToken = new ComponentAcceptToken();
-            componentAcceptToken.setAcceptToken(componentAccessTokenVo.getComponent_access_token());
-            componentAcceptToken.setExpiresIn(componentAccessTokenVo.getExpires_in());
-            //保存令牌
-            acceptTokenService.insertAcceptToken(componentAcceptToken);
+        //jiemi
+        String xml = getString(request);
+        log.info("微信推送的原生：" + xml);
+        // 第三方平台组件加密密钥
+        Map<String, String> parseXml = WeChatUtils.getStringXmlMap(timestamp, nonce, msgSignature, xml);
+        String infoType = parseXml.get("InfoType");
+        if (ContantsEnum.INFO_TYPE_2.getCode().equals(infoType)){
+            //删除授权信息
+            String authorizerAppid = parseXml.get("AuthorizerAppid");
+            BigAuthorizationInfo bigAuthorizationInfo = new BigAuthorizationInfo();
+            bigAuthorizationInfo.setIsEffect(ProEnum.YES_NO_0.getCode());
+            bigAuthorizationInfo.setAuthorizer_appid(authorizerAppid);
+            this.updateAuthorizationInfoByAppId(bigAuthorizationInfo);
+        }else if (ContantsEnum.INFO_TYPE_1.getCode().equals(infoType)){
+            log.info("1");
+        }else if (ContantsEnum.INFO_TYPE_3.getCode().equals(infoType)){
+            log.info("3");
+        }else if (null==infoType) {
+            //======================获取getComponentVerifyTicket===============//
+            String componentVerifyTicket = parseXml.get("component_verify_ticket");
+            VerifyTicket verifyTicket = new VerifyTicket();
+            verifyTicket.setComponentVerifyTicket(componentVerifyTicket);
+            //保存凭证
+            ticketService.insertTicket(verifyTicket);
+            //=====================调用接口获取component_access_token=============//
+            String componentAccessToken;
+            //判断是否调用微信接口
+            if (isGetAcceptToken()){
+                WeChatComponentAccessTokenVo componentAccessTokenVo =WeChatUtils.getComponentAccessToken(componentVerifyTicket);
+                componentAccessToken=componentAccessTokenVo.getComponent_access_token();
+                ComponentAcceptToken componentAcceptToken = new ComponentAcceptToken();
+                componentAcceptToken.setAcceptToken(componentAccessTokenVo.getComponent_access_token());
+                componentAcceptToken.setExpiresIn(componentAccessTokenVo.getExpires_in());
+                //保存令牌
+                acceptTokenService.insertAcceptToken(componentAcceptToken);
+            }else {
+                ComponentAcceptToken componentAcceptTokenM = acceptTokenService.selectAcceptToken();
+                componentAccessToken=componentAcceptTokenM.getAcceptToken();
+            }
+            //===================获取预授权码pre_auth_code*************************//
+            Object[] object = {componentAccessToken};
+            //调用微信
+            WeChatPreAuthCodeVo preAuthCodeVo = WeChatUtils.getWeChatPreAuthCodeVo(object);
+            PreCode preCode = new PreCode();
+            preCode.setPreCode(preAuthCodeVo.getPre_auth_code());
+            preCode.setExpiresIn(preAuthCodeVo.getExpires_in());
+            //将预授权码存在数据库中
+            preCodeService.updatePreCodeByPreCodeId(preCode);
         }else {
-            ComponentAcceptToken componentAcceptTokenM = acceptTokenService.selectAcceptToken();
-            componentAccessToken=componentAcceptTokenM.getAcceptToken();
+            log.info("null");
         }
-        //===================获取预授权码pre_auth_code*************************//
-        Object[] object = {componentAccessToken};
-        //调用微信
-        WeChatPreAuthCodeVo preAuthCodeVo = WeChatUtils.getWeChatPreAuthCodeVo(object);
-        PreCode preCode = new PreCode();
-        preCode.setPreCode(preAuthCodeVo.getPre_auth_code());
-        preCode.setExpiresIn(preAuthCodeVo.getExpires_in());
-        //将预授权码存在数据库中
-        preCodeService.updatePreCodeByPreCodeId(preCode);
     }
+
     /**
      * 新增授权信息
      * @param bigAuthorizationInfo 授权信息
@@ -125,18 +148,17 @@ public class AuthorizedServiceImpl implements AuthorizedService {
     public AuthorizationInfo doRefreshToken(String authorizationInfoId) {
         //第三方id
         String thridAppid = WeChatContants.THRID_APPID;
-        //查询授权信息 私有内部使用  todo 编写公共查看接口 附带被迫刷新令牌
+        //查询授权信息 私有内部使用
         BigAuthorizationInfo bigAuthorizationInfo = this.getAuthorInfoService(authorizationInfoId);
         if (bigAuthorizationInfo==null){
-            throw  new ServiceException(HRSCExceptionEnum.UNABLE_GET_AUTHOR_INFO_BY_ID);
+            throw new ServiceException(HRSCExceptionEnum.UNABLE_GET_AUTHOR_INFO_BY_ID);
         }
         if (StringUtils.isEmpty(thridAppid)){
-            throw  new ServiceException(HRSCExceptionEnum.CONFIG_INFO_ERROR);
+            throw new ServiceException(HRSCExceptionEnum.CONFIG_INFO_ERROR);
         }
         ComponentAcceptToken componentAcceptToken = acceptTokenService.selectAcceptToken();
         if (componentAcceptToken==null){
-            //todo 调用被迫刷新机制
-            throw  new ServiceException(HRSCExceptionEnum.COMPONENT_ACCESS_TOKEN_MISS);
+            throw new ServiceException(HRSCExceptionEnum.COMPONENT_ACCESS_TOKEN_MISS);
         }
         String url = WeChatContants.REFRESH_AUTHORIZER_ACCESS_TOKEN;
         String formatUrl = String.format(url, componentAcceptToken.getAcceptToken());
@@ -243,6 +265,30 @@ public class AuthorizedServiceImpl implements AuthorizedService {
         }
         return authorDao.getAuthorInfoByAppidDao(toUserName);
     }
+    /**
+     * 通过userId 查询授权信息
+     * @param userId 账户id
+     * @return 授权信息
+     */
+    @Override
+    public List<BigAuthorizationInfo> getAuthorInfoByUserIdService(String userId) {
+        if (StringUtils.isEmpty(userId)){
+            return new ArrayList<>();
+        }
+        return authorDao.getAuthorInfoByUserIdDao(userId);
+    }
+
+    /**
+     * 通过appid 修改信息
+     * @param bigAuthorizationInfo 授权信息
+     */
+    @Override
+    public void updateAuthorizationInfoByAppId(BigAuthorizationInfo bigAuthorizationInfo) {
+       if (bigAuthorizationInfo==null||bigAuthorizationInfo.getAuthorizer_appid()==null){
+           throw new ServiceException(HRSCExceptionEnum.PARAMGRAM_MISS);
+       }
+       authorDao.updateAuthorizationInfoByAppIdDao(bigAuthorizationInfo);
+    }
 
     /**
      * 内部获取授权基本信息
@@ -273,33 +319,6 @@ public class AuthorizedServiceImpl implements AuthorizedService {
         return false;
     }
 
-
-    /**
-     * 获取凭证
-     *
-     * @param request      请求
-     * @param timestamp    时间戳
-     * @param nonce        附加信息
-     * @param msgSignature 验证
-     * @return String
-     */
-
-    private String getComponentVerifyTicket(HttpServletRequest request, String timestamp, String nonce, String msgSignature) throws IOException, AesException {
-        String xml = getString(request);
-        log.info("微信推送的原生：" + xml);
-        // 第三方平台组件加密密钥
-        String encodingAesKey = WeChatContants.ENCODING_AES_KEY;
-        String appId = WeChatContants.THRID_APPID;
-        String token = WeChatContants.TOKEN;
-
-        WXBizMsgCrypt pc = new WXBizMsgCrypt(token, encodingAesKey, appId);
-        xml = pc.decryptMsg(msgSignature, timestamp, nonce, xml);
-        log.info("解密后的：" + xml);
-        Map<String, String> parseXml = WeChatUtils.parseXml(xml);
-        String componentVerifyTicket = parseXml.get("ComponentVerifyTicket");
-        log.info(componentVerifyTicket);
-        return componentVerifyTicket;
-    }
 
     /**
      * 获取请求中的xml 变为String

@@ -66,7 +66,7 @@
        AUTHORIZER_ACCESS_TOKEN,EXPIRES_IN,
        AUTHORIZER_REFRESH_TOKEN
        FROM authorization_info
-       WHERE AUTHORIZATION_INFO_ID=#{authorizationInfoId}
+       WHERE IS_EFFECT=1 AND AUTHORIZATION_INFO_ID=#{authorizationInfoId}
     </select>
     <select id="findBigAuthorizationInfoByIdDao" resultMap="auResult">
       SELECT AUTHORIZATION_INFO_ID,AUTHORIZER_APPID,
@@ -76,7 +76,7 @@
        SERVICE_TYPE,VERIFY_TYPE,
        USER_NAME,PRINCIPAL_NAME,
        ALIAS,CREATE_TIME,FENSI_NUM,QRCODE_URL,USER_ID
-       FROM authorization_info WHERE AUTHORIZATION_INFO_ID=#{authorizationInfoId}
+       FROM authorization_info WHERE IS_EFFECT=1 AND AUTHORIZATION_INFO_ID=#{authorizationInfoId}
     </select>
     <update id="updateAuthorizationInfoByIdDao">
     UPDATE authorization_info SET
@@ -97,5 +97,26 @@ SELECT AUTHORIZATION_INFO_ID,AUTHORIZER_APPID,
        AUTHORIZER_REFRESH_TOKEN,FENSI_NUM
        FROM authorization_info
        WHERE AUTHORIZER_APPID=#{authorizer_appid}
+    </select>
+    <update id="updateAuthorizationInfoByAppIdDao">
+        UPDATE authorization_info SET
+        <trim suffixOverrides=",">
+            <if test="authorizer_access_token !=null">AUTHORIZER_ACCESS_TOKEN=#{authorizer_access_token},</if>
+            <if test="expires_in !=null">EXPIRES_IN=#{expires_in},</if>
+            <if test="authorizer_refresh_token!=null">AUTHORIZER_REFRESH_TOKEN=#{authorizer_refresh_token},</if>
+            <if test="begTime!=null">BEG_TIME=#{begTime},</if>
+            <if test="isEffect!=null">IS_EFFECT=#{isEffect},</if>
+        </trim>
+        WHERE AUTHORIZER_APPID=#{authorizer_appid}
+    </update>
+    <select id="getAuthorInfoByUserIdDao" resultMap="auResult">
+       SELECT AUTHORIZATION_INFO_ID,AUTHORIZER_APPID,
+       AUTHORIZER_ACCESS_TOKEN,EXPIRES_IN,
+       AUTHORIZER_REFRESH_TOKEN,BEG_TIME,
+       NICK_NAME,HEAD_IMG,
+       SERVICE_TYPE,VERIFY_TYPE,
+       USER_NAME,PRINCIPAL_NAME,
+       ALIAS,CREATE_TIME,FENSI_NUM,QRCODE_URL,USER_ID
+       FROM authorization_info WHERE IS_EFFECT=1 AND USER_ID=#{userId}
     </select>
 </mapper>

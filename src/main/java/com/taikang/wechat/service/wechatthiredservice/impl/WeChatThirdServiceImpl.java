@@ -11,15 +11,20 @@ import com.taikang.wechat.service.authorized.AuthorizedService;
 import com.taikang.wechat.service.componentAccessToken.ComponentAcceptTokenService;
 import com.taikang.wechat.service.wechatthiredservice.WeChatThridService;
 import com.taikang.wechat.utils.WeChatUtils;
+import com.taikang.wechat.utils.aes.AesException;
 import com.taikang.wechat.utils.aes.WXBizMsgCrypt;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.MessageFormat;
+import java.util.Calendar;
 import java.util.Map;
 
 
@@ -149,6 +154,19 @@ public class WeChatThirdServiceImpl implements WeChatThridService {
         Map<String, String> parseXml = WeChatUtils.parseXml(xml);
         String toUserName = parseXml.get("ToUserName");
         String event = parseXml.get("Event");
+
+        //微信全网发布公测
+        String msgType = parseXml.get("MsgType");
+        String fromUserName = parseXml.get("FromUserName");
+        if ("event".equals(msgType)) {
+            log.info("---------------事件消息--------");
+            replyEventMessage(request, response, event, toUserName, fromUserName);
+        } else if ("text".equals(msgType)) {
+            log.info("---------------文本消息--------");
+            String content = parseXml.get("Content");
+            processTextMessage(request, response, content, toUserName, fromUserName);
+        }
+
         if (ContantsEnum.ENVEBT_TYPE_1.getCode().equals(event)) {
             authorizedService.updateAuthorizationInfoFensiNumByAppid(toUserName, 1);
         } else if (ContantsEnum.ENVEBT_TYPE_2.getCode().equals(event)) {
@@ -165,6 +183,117 @@ public class WeChatThirdServiceImpl implements WeChatThridService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
+
+
+    /**
+     * 微信全网接入  事件消息
+     *
+     * @param request
+     * @param response
+     * @param event
+     * @param toUserName
+     * @param fromUserName
+     * @throws Exception
+     */
+    private void replyEventMessage(HttpServletRequest request, HttpServletResponse response, String event, String toUserName, String fromUserName) throws Exception {
+        String content = event + "from_callback";
+        log.info("--------------事件回复消息  content=" + content + "   toUserName=" + toUserName + "   fromUserName=" + fromUserName);
+        replyTextMessage(request, response, content, toUserName, fromUserName);
+    }
+
+    /**
+     * 微信全网接入  文本消息
+     *
+     * @param request
+     * @param response
+     * @param toUserName
+     * @param fromUserName
+     */
+    private void processTextMessage(HttpServletRequest request, HttpServletResponse response, String content, String toUserName, String fromUserName) throws Exception {
+        if ("TESTCOMPONENT_MSG_TYPE_TEXT".equals(content)) {
+            String returnContent = content + "_callback";
+            replyTextMessage(request, response, returnContent, toUserName, fromUserName);
+        } else if (StringUtils.startsWithIgnoreCase(content, "QUERY_AUTH_CODE")) {
+            //先回复空串
+            WeChatUtils.responseReplyMessage(response, "");
+            //接下来客服API再回复一次消息
+            replyApiTextMessage(request, response, content.split(":")[1], fromUserName, 1);
+        }
+    }
+
+    /**
+     * 回复微信服务器"文本消息"
+     *
+     * @param request
+     * @param response
+     * @param content
+     * @param toUserName
+     * @param fromUserName
+     * @throws IOException
+     */
+    public void replyTextMessage(HttpServletRequest request, HttpServletResponse response, String content, String toUserName, String fromUserName) throws Exception {
+        Long createTime = Calendar.getInstance().getTimeInMillis() / 1000;
+        StringBuffer sb = new StringBuffer();
+        sb.append("<xml>");
+        sb.append("<ToUserName><![CDATA[" + fromUserName + "]]></ToUserName>");
+        sb.append("<FromUserName><![CDATA[" + toUserName + "]]></FromUserName>");
+        sb.append("<CreateTime>" + createTime + "</CreateTime>");
+        sb.append("<MsgType><![CDATA[text]]></MsgType>");
+        sb.append("<Content><![CDATA[" + content + "]]></Content>");
+        sb.append("</xml>");
+        String replyMsg = sb.toString();
+
+        String returnvaleue = "";
+        try {
+            // 第三方平台组件加密密钥
+            String encodingAesKey = WeChatContants.ENCODING_AES_KEY;
+            //从xml中解析
+            String appId = WeChatContants.THRID_APPID;
+            WXBizMsgCrypt pc = new WXBizMsgCrypt(WeChatContants.TOKEN, encodingAesKey, appId);
+            returnvaleue = pc.encryptMsg(replyMsg, createTime.toString(), request.getParameter("nonce"));
+            log.info("------------------加密后的返回内容 returnvaleue： " + returnvaleue);
+        } catch (AesException e) {
+            e.printStackTrace();
+        }
+        WeChatUtils.responseReplyMessage(response, returnvaleue);
+    }
+
+    /**
+     * 客服接口回复粉丝信息
+     *
+     * @param response
+     * @param auth_code    当type=1是才有值，type=0为null
+     * @param fromUserName
+     * @param type         1 表示全网发布时回复
+     *                     0 表示普通消息回复
+     * @throws Exception
+     */
+    public void replyApiTextMessage(HttpServletRequest request, HttpServletResponse response, String auth_code, String fromUserName, int type) throws Exception {
+        //从数据库中获取access_token
+        BigAuthorizationInfo big = authorizedService.getAuthorInfoByAppidService("wx570bc396a51b8ff8");
+        String access_token = big.getAuthorizer_access_token();
+        //模拟客户回复文本消息
+        Object[] objects = {access_token};
+        String sendMessageTextUrl = String.format(WeChatContants.THRID_KEFU_SENDMESSAGE_URL, objects);
+        //组装post数据
+        WeChatKeFuSendTextMessageVo textmessageVo = new WeChatKeFuSendTextMessageVo();
+        textmessageVo.setMsgtype("text");
+        textmessageVo.setTouser(fromUserName);
+        WeChatKeFuSendTextVo textContentVo = new WeChatKeFuSendTextVo();
+        String textContent = "";
+        if (type == 1) {
+            //全网发布回复的内容
+            textContent = auth_code + "_from_api";
+        } else {
+            //普通文本消息回复的内容
+            textContent = "hello,ok!";
+        }
+        textContentVo.setContent(textContent);
+        textmessageVo.setText(textContentVo);
+//        String result = HttpNetUtils.getInstance().httpByJson(sendMessageTextUrl,"POST",textmessageVo);
+        String result = WeChatUtils.postUrl(sendMessageTextUrl, textmessageVo);
+        log.info("客服回复结果：" + result);
+    }
+
 }

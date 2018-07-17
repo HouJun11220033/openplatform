@@ -56,4 +56,6 @@ public interface WeChatContants {
      * 获取公众号粉丝列表路径
      */
     String GET_FENSI_TOTAL_URL="https://api.weixin.qq.com/cgi-bin/user/get?access_token=%s&next_openid=%s";
+
+    String THRID_KEFU_SENDMESSAGE_URL = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=%s";
 }

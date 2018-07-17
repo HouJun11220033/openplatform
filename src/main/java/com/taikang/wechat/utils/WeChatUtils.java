@@ -18,8 +18,12 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -207,5 +211,16 @@ public class WeChatUtils {
             log.info("解密后的：" + xml);
             return WeChatUtils.parseXml(xml);
 
+    }
+    /**
+     * 统一回复微信服务器
+     * @param response 响应
+     * @param content 参数
+     */
+    public static void responseReplyMessage(HttpServletResponse response, String content) throws IOException {
+        PrintWriter pw = response.getWriter();
+        pw.write(content);
+        pw.flush();
+        pw.close();
     }
 }
